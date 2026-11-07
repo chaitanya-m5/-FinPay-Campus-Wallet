@@ -2,6 +2,7 @@ let token=localStorage.getItem("finpay_token")||"",wallet=null,rules=null,transa
 const $=id=>document.getElementById(id),money=p=>"₹"+(Number(p||0)/100).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
 const names={CANTEEN:"Canteen",STATIONERY:"Stationery",TRANSPORT:"Transport",HOSTEL:"Hostel",ONLINE:"Online",TOP_UP:"Top-up"};
 const icons={CANTEEN:"☕",STATIONERY:"✎",TRANSPORT:"↗",HOSTEL:"⌂",ONLINE:"▣",TOP_UP:"＋"};
+const studentOverviewMarkup=$("overviewSection").innerHTML;
 const headers=()=>({"Content-Type":"application/json","Authorization":"Bearer "+token});
 async function api(path,opts={}){const r=await fetch(path,{...opts,headers:{...headers(),...(opts.headers||{})}});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.detail||"Request failed");return d}
 function showLogin(){$("loginView").classList.remove("hidden");$("appView").classList.add("hidden")}
@@ -15,6 +16,7 @@ async function refresh(){
   $("profileTier").textContent=currentUser.role.replaceAll("_"," ");
   $("avatar").textContent=currentUser.full_name.charAt(0).toUpperCase();
   if(currentUser.role==="STUDENT"){
+   if(!$("balance")) $("overviewSection").innerHTML=studentOverviewMarkup;
    [wallet,rules,transactions,reconciliation]=await Promise.all([api("/api/wallet"),api("/api/rules"),api("/api/transactions"),api("/api/reconciliation")]);
    document.querySelectorAll(".nav-item").forEach(x=>x.classList.remove("hidden"));
    document.querySelectorAll(".nav-item").forEach(x=>x.classList.toggle("hidden",!["overview","payments","activity","rewards"].includes(x.dataset.section)));
