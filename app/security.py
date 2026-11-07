@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import Callable
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException
@@ -28,7 +29,16 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         user_id = int(payload.get("sub"))
     except (JWTError, TypeError, ValueError):
         raise HTTPException(status_code=401, detail="Invalid or expired token")
-    user = db.query(models.User).filter(models.User.id == user_id, models.User.is_active == True).first()
+    user = db.query(models.User).filter(
+        models.User.id == user_id, models.User.is_active.is_(True)
+    ).first()
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     return user
+
+def require_roles(*allowed_roles: str) -> Callable:
+    def role_dependency(user: models.User = Depends(get_current_user)):
+        if user.role not in allowed_roles:
+            raise HTTPException(status_code=403, detail="This account does not have permission to access this resource")
+        return user
+    return role_dependency
