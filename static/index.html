@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FinPay | Campus Wallet</title><link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/styles.css"></head><body>
+<div id="loginView" class="login-shell"><div class="login-art"><div class="brand"><span class="brand-mark">F</span> finpay</div>
+<div class="art-copy"><span class="eyebrow">CAMPUS, WITHOUT THE CASH</span><h1>Your campus<br>life. One wallet.</h1><p>Pay simply. Earn cashback. Keep every campus expense in view.</p></div>
+<div class="art-bottom"><span>● Secure wallet</span><span>● Smart rewards</span><span>● Made for campus</span></div></div>
+<div class="login-panel"><div class="mobile-brand brand"><span class="brand-mark">F</span> finpay</div><div class="login-card">
+<span class="eyebrow">WELCOME BACK</span><h2>Sign in to FinPay</h2><p class="muted">Your student wallet is just a step away.</p>
+<form id="loginForm"><label>Username</label><input id="username" value="rahul" autocomplete="username" required>
+<label>Password</label><input id="password" type="password" value="rahul123" required>
+<button class="primary full" type="submit">Sign in <span>→</span></button><div id="loginError" class="error"></div></form>
+<div class="demo-hint"><b>Demo access</b><span>rahul / rahul123</span><span>priya / priya123</span></div></div><div class="login-foot">FinPay · Campus digital wallet</div></div></div>
+<div id="appView" class="app-shell hidden"><aside class="sidebar"><div class="brand"><span class="brand-mark">F</span> finpay</div><div class="nav-label">WORKSPACE</div>
+<button class="nav-item active" data-section="overview"><span>▦</span> Overview</button><button class="nav-item" data-section="payments"><span>↗</span> Make a payment</button>
+<button class="nav-item" data-section="activity"><span>◷</span> Transactions</button><button class="nav-item" data-section="rewards"><span>✧</span> Cashback & rules</button>
+<div class="sidebar-bottom"><div class="help-card"><div class="help-icon">✦</div><b>Campus made easier</b><p>One wallet for your everyday campus spending.</p></div><button id="logoutBtn" class="logout">↪ &nbsp; Sign out</button></div></aside>
+<main class="main"><header class="topbar"><div><span class="eyebrow" id="dateLabel">YOUR FINPAY SPACE</span><h2 id="pageTitle">Overview</h2></div>
+<div class="profile"><div class="avatar" id="avatar">R</div><div><b id="profileName">Student</b><small id="profileTier">BASIC MEMBER</small></div><span class="chevron">⌄</span></div></header>
+<section id="overviewSection" class="section"><div class="welcome-row"><div><h1>Good to see you, <span id="welcomeName">Rahul</span> <span class="wave">✦</span></h1><p class="muted">Here’s what’s happening with your campus wallet.</p></div><button class="primary" data-go="payments">＋ Make a payment</button></div>
+<div class="stats-grid"><div class="stat-card"><div class="stat-top">WALLET BALANCE <span class="stat-icon">₹</span></div><div class="stat-value" id="balance">₹0.00</div><div class="stat-foot">● Available to spend</div></div>
+<div class="stat-card"><div class="stat-top">CASHBACK EARNED <span class="stat-icon purple">✧</span></div><div class="stat-value" id="cashbackTotal">₹0.00</div><div class="stat-foot">This month</div></div>
+<div class="stat-card"><div class="stat-top">TOTAL SPENT <span class="stat-icon blue">↗</span></div><div class="stat-value" id="spentTotal">₹0.00</div><div class="stat-foot">This month</div></div>
+<div class="stat-card"><div class="stat-top">WALLET TIER <span class="stat-icon gold">✦</span></div><div class="stat-value tier-value" id="tierValue">BASIC</div><div class="stat-foot">Your rewards multiplier</div></div></div>
+<div class="content-grid"><div class="panel"><div class="panel-head"><div><h3>Recent transactions</h3><p class="muted">Your latest wallet activity</p></div><button class="text-btn" data-go="activity">View all →</button></div><div id="recentTransactions" class="transaction-list"></div></div>
+<div class="panel"><div class="panel-head"><div><h3>Quick payment</h3><p class="muted">Choose where you’re paying</p></div></div><div class="quick-grid">
+<button data-category="CANTEEN"><span class="quick-icon orange">☕</span><b>Canteen</b><small>Food & drinks</small></button><button data-category="STATIONERY"><span class="quick-icon violet">✎</span><b>Stationery</b><small>Books & supplies</small></button>
+<button data-category="TRANSPORT"><span class="quick-icon blue">↗</span><b>Transport</b><small>Campus commute</small></button><button data-category="HOSTEL"><span class="quick-icon green">⌂</span><b>Hostel</b><small>Hostel services</small></button></div></div></div>
+<div class="tier-banner"><div class="tier-star">✧</div><div><b>Make every payment count</b><p>Earn cashback automatically on eligible campus purchases.</p></div><button class="text-btn" data-go="rewards">Explore rewards →</button></div></section>
+<section id="paymentsSection" class="section hidden"><div class="page-intro"><h1>Make a payment</h1><p class="muted">Pay a campus merchant and earn cashback on eligible purchases.</p></div>
+<div class="payment-layout"><div class="panel payment-panel"><h3>Payment details</h3><form id="paymentForm"><label>Merchant name</label><input id="merchant" placeholder="e.g. Campus Canteen" required>
+<label>Merchant category</label><select id="category"><option value="CANTEEN">Canteen</option><option value="STATIONERY">Stationery</option><option value="TRANSPORT">Transport</option><option value="HOSTEL">Hostel</option><option value="ONLINE">Online</option><option value="TOP_UP">Top-up (no cashback)</option></select>
+<label>Payment amount (₹)</label><div class="amount-input"><span>₹</span><input id="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required></div>
+<div class="cashback-preview"><span>Estimated cashback (before monthly cap)</span><b id="cashbackPreview">₹0.00</b></div>
+<button class="primary full" type="submit">Pay securely <span>→</span></button><div id="paymentMessage" class="message"></div></form></div>
+<div class="panel pay-info"><div class="info-icon">✧</div><h3>Rewards that add up</h3><p class="muted">Cashback uses your wallet tier and merchant category. Monthly category limits apply.</p>
+<div class="info-line"><span>Your wallet</span><b id="paymentBalance">₹0.00</b></div><div class="info-line"><span>Current tier</span><b id="paymentTier">BASIC</b></div><div class="secure-note">♢ &nbsp; Every payment is protected against duplicate requests.</div></div></div></section>
+<section id="activitySection" class="section hidden"><div class="page-intro"><h1>Transactions</h1><p class="muted">A clear view of everything you’ve paid for.</p></div><div class="panel"><div class="panel-head"><div><h3>All activity</h3><p class="muted">Most recent transactions first</p></div><span class="pill" id="transactionCount">0 transactions</span></div>
+<div class="table-wrap"><table><thead><tr><th>MERCHANT</th><th>CATEGORY</th><th>DATE</th><th>AMOUNT</th><th>CASHBACK</th><th>STATUS</th></tr></thead><tbody id="allTransactions"></tbody></table></div></div></section>
+<section id="rewardsSection" class="section hidden"><div class="page-intro"><h1>Cashback & rewards</h1><p class="muted">Understand how your wallet tier makes every eligible payment more rewarding.</p></div>
+<div class="tier-cards"><div class="tier-card"><span>◇</span><b>BASIC</b><strong>1×</strong><small>Rate & monthly cap</small></div><div class="tier-card featured"><span>✧</span><b>PRIME</b><strong>1.5×</strong><small>Rate & monthly cap</small></div><div class="tier-card"><span>✦</span><b>PREMIUM</b><strong>2×</strong><small>Rate & monthly cap</small></div></div>
+<div class="panel rules-panel"><div class="panel-head"><div><h3>Merchant cashback rules</h3><p class="muted">BASIC rates and monthly caps from the FinPay scenario</p></div><span class="pill">Monthly limits</span></div>
+<div class="table-wrap"><table><thead><tr><th>CATEGORY</th><th>BASIC RATE</th><th>BASIC MONTHLY CAP</th><th>YOUR TIER RATE</th><th>YOUR MONTHLY CAP</th></tr></thead><tbody id="rulesTable"></tbody></table></div>
+<p class="rule-note">Cashback is calculated in paise using floor (round down). Your monthly cap is tracked separately for each merchant category.</p></div></section>
+</main></div><script src="/static/app.js"></script></body></html>
