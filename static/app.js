@@ -1,4 +1,4 @@
-let token=localStorage.getItem("finpay_token")||"",wallet=null,rules=null,transactions=[],reconciliation=null;
+let token=localStorage.getItem("finpay_token")||"",wallet=null,rules=null,transactions=[],reconciliation=null,currentUser=null;
 const $=id=>document.getElementById(id),money=p=>"₹"+(Number(p||0)/100).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
 const names={CANTEEN:"Canteen",STATIONERY:"Stationery",TRANSPORT:"Transport",HOSTEL:"Hostel",ONLINE:"Online",TOP_UP:"Top-up"};
 const icons={CANTEEN:"☕",STATIONERY:"✎",TRANSPORT:"↗",HOSTEL:"⌂",ONLINE:"▣",TOP_UP:"＋"};
@@ -8,8 +8,42 @@ function showLogin(){$("loginView").classList.remove("hidden");$("appView").clas
 function showApp(){$("loginView").classList.add("hidden");$("appView").classList.remove("hidden")}
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginError").textContent="";try{const d=await api("/api/auth/login",{method:"POST",body:JSON.stringify({username:$("username").value,password:$("password").value})});token=d.access_token;localStorage.setItem("finpay_token",token);showApp();await refresh()}catch(x){$("loginError").textContent=x.message}});
 $("logoutBtn").onclick=()=>{token="";localStorage.removeItem("finpay_token");showLogin()};
-async function refresh(){try{[wallet,rules,transactions,reconciliation]=await Promise.all([api("/api/wallet"),api("/api/rules"),api("/api/transactions"),api("/api/reconciliation")]);render()}catch(e){token="";localStorage.removeItem("finpay_token");showLogin()}}
-function render(){let first=wallet.full_name.split(" ")[0];$("profileName").textContent=wallet.full_name;$("profileTier").textContent=wallet.tier+" MEMBER";$("avatar").textContent=first[0];$("welcomeName").textContent=first;$("balance").textContent=money(wallet.balance_paise);$("cashbackTotal").textContent=money(reconciliation.total_cashback_paise);$("spentTotal").textContent=money(reconciliation.total_spend_paise);$("tierValue").textContent=wallet.tier;$("paymentBalance").textContent=money(wallet.balance_paise);$("paymentTier").textContent=wallet.tier;$("dateLabel").textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});renderTx();renderRules();preview()}
+async function refresh(){
+ try{
+  currentUser=await api("/api/auth/me");
+  $("profileName").textContent=currentUser.full_name;
+  $("profileTier").textContent=currentUser.role.replaceAll("_"," ");
+  $("avatar").textContent=currentUser.full_name.charAt(0).toUpperCase();
+  if(currentUser.role==="STUDENT"){
+   [wallet,rules,transactions,reconciliation]=await Promise.all([api("/api/wallet"),api("/api/rules"),api("/api/transactions"),api("/api/reconciliation")]);
+   document.querySelectorAll(".nav-item").forEach(x=>x.classList.remove("hidden"));
+   document.querySelectorAll(".nav-item").forEach(x=>x.classList.toggle("hidden",!["overview","payments","activity","rewards"].includes(x.dataset.section)));
+   $("overviewSection").classList.remove("hidden");
+   render();
+  }else{
+   document.querySelectorAll(".nav-item").forEach(x=>x.classList.add("hidden"));
+   const endpoint=currentUser.role==="COMPANY"?"/api/company/summary":"/api/coordinator/summary";
+   const summary=await api(endpoint);
+   renderRoleDashboard(summary);
+  }
+ }catch(e){token="";localStorage.removeItem("finpay_token");showLogin();$("loginError").textContent=e.message}
+}
+function renderRoleDashboard(s){
+ document.querySelectorAll(".section").forEach(x=>x.classList.add("hidden"));
+ $("pageTitle").textContent=s.workspace+" Dashboard";
+ const isCoordinator=currentUser.role==="PLACEMENT_COORDINATOR";
+ const cards=isCoordinator?[
+  ["Student accounts",s.student_accounts],["Company accounts",s.company_accounts],
+  ["Total transactions",s.transaction_count],["Payment volume",money(s.total_payment_volume_paise)],
+  ["Cashback issued",money(s.total_cashback_paise)]
+ ]:[
+  ["Total transactions",s.transaction_count],["Payment volume",money(s.total_payment_volume_paise)],
+  ["Cashback issued",money(s.total_cashback_paise)]
+ ];
+ $("overviewSection").classList.remove("hidden");
+ $("overviewSection").innerHTML=`<div class="welcome-row"><div><h1>Welcome, ${esc(currentUser.full_name)}</h1><p class="muted">You are signed in as ${isCoordinator?"Placement Coordinator":"Company"}.</p></div></div><div class="stats-grid">${cards.map(([label,value])=>`<div class="stat-card"><div class="stat-top">${label.toUpperCase()}</div><div class="stat-value">${value}</div></div>`).join("")}</div><div class="panel" style="margin-top:24px;padding:24px"><h3>${s.workspace} access</h3><p class="muted">${isCoordinator?"View high-level account and transaction summaries.":"View aggregate payment activity. Individual student wallet details are not available to this role."}</p></div>`;
+}
+function render(){let first=wallet.full_name.split(" ")[0];$("profileName").textContent=wallet.full_name;$("profileTier").textContent=wallet.tier+" · STUDENT";$("avatar").textContent=first[0];$("welcomeName").textContent=first;$("balance").textContent=money(wallet.balance_paise);$("cashbackTotal").textContent=money(reconciliation.total_cashback_paise);$("spentTotal").textContent=money(reconciliation.total_spend_paise);$("tierValue").textContent=wallet.tier;$("paymentBalance").textContent=money(wallet.balance_paise);$("paymentTier").textContent=wallet.tier;$("dateLabel").textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});renderTx();renderRules();preview()}
 function renderTx(){let recent=transactions.slice(0,5);$("recentTransactions").innerHTML=recent.length?recent.map(t=>`<div class="transaction-row"><div class="merchant-icon">${icons[t.category]}</div><div class="merchant-meta"><b>${esc(t.merchant_name)}</b><small>${names[t.category]} · ${new Date(t.created_at).toLocaleDateString("en-IN")}</small></div><div class="tx-amount"><b>−${money(t.amount_paise)}</b><small>+${money(t.cashback_paise)} cashback</small></div></div>`).join(""):`<div class="empty-state">No payments yet. Make your first campus payment!</div>`;$("allTransactions").innerHTML=transactions.length?transactions.map(t=>`<tr><td>${esc(t.merchant_name)}</td><td>${names[t.category]}</td><td>${new Date(t.created_at).toLocaleString("en-IN")}</td><td>${money(t.amount_paise)}</td><td style="color:#169b70">${money(t.cashback_paise)}</td><td><span class="status">${t.status}</span></td></tr>`).join(""):`<tr><td colspan="6" class="empty-state">No transactions to show</td></tr>`;$("transactionCount").textContent=transactions.length+" transactions"}
 function renderRules(){let m=rules.tier_multipliers[wallet.tier].cashback_rate;$("rulesTable").innerHTML=Object.entries(rules.categories).map(([c,r])=>{let cap=r.basic_monthly_cap_rupees*m;return `<tr><td>${names[c]}</td><td>${r.basic_rate_percent.toFixed(2)}%</td><td>${r.basic_monthly_cap_rupees?money(r.basic_monthly_cap_paise):"No cashback"}</td><td>${(r.basic_rate_percent*m).toFixed(2)}%</td><td>${cap?money(cap*100):"—"}</td></tr>`}).join("")}
 function preview(){if(!rules||!wallet)return;let a=Math.floor(Number($("amount").value||0)*100),r=rules.categories[$("category").value],m=rules.tier_multipliers[wallet.tier].cashback_rate;$("cashbackPreview").textContent=money(Math.floor(a*r.basic_rate_percent*m/100))}
