@@ -1,6 +1,6 @@
 # FinPay Campus Wallet
 
-FastAPI + SQLite demo based on the supplied FinPay scenario.
+FastAPI + SQLite demo based on the FinPay scenario.
 
 ## Run (Windows PowerShell)
 ```powershell
