@@ -64,6 +64,4 @@ At startup, FinPay checks whether the SQLite `users` table already has a `role` 
 
 BASIC: Canteen 2% / ₹50 cap; Stationery 1% / ₹20; Transport 3% / ₹100; Hostel 0.5% / ₹200; Online 1% / ₹30; Top-up 0% / no cashback.
 
-Tier multipliers: BASIC 1x, PRIME 1.5x, PREMIUM 2x.
-
-This is an educational simulation, not a real payment gateway or a complete placement-management system.
+Tier multipliers: BASIC 1x, PRIME 1.5x, PREMIUM 2x
